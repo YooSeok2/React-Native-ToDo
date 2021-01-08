@@ -1,36 +1,53 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, {Component} from 'react';
 import { StyleSheet, Text, View, TextInput, Dimensions, Platform, ScrollView } from 'react-native';
 import Todo from './Todo';
+import AppLoading from "expo-app-loading";
+import uuid from "react-native-uuid";
+
 
 const {width} = Dimensions.get("window");
-export default class App extends React.Component {
+export default class App extends Component {
    state = {
-     newToDo : ""
+     newToDo : "",
+     isLoaded : false,
+     toDos : {}
    }
-  render(){
+  
+   componentDidMount = ()=>{
+     this._loadedToDo()
+   }
 
-    const {newToDo} = this.state;
-    return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" />
-        <Text style={styles.title}>YooGGu ToDo</Text>
-        <View style= {styles.card}>
-          <TextInput 
-            style={styles.input} 
-            placeholder={"New To Do"}
-            value = {newToDo}
-            onChangeText = {this._controlNewToDo}
-            autoCorrect = {false}
-            placeholderTextColor ={"#bbb"}
-          >
-          </TextInput>
-          <ScrollView contentContainerStyle = {styles.todo}>
-              <Todo text={"Hello I'm Todo"} />
-          </ScrollView>
-        </View>
-      </View>
-    );  
+  render(){
+    const {newToDo, isLoaded, toDos} = this.state;
+
+    if(!isLoaded){
+      return <AppLoading/> 
+    }else{
+      return (
+        <View style={styles.container}>
+           <StatusBar barStyle="light-content" />
+           <Text style={styles.title}>YooGGu ToDo</Text>
+           <View style= {styles.card}>
+             <TextInput 
+               style={styles.input} 
+               placeholder={"New To Do"}
+               value = {newToDo}
+               onChangeText = {this._controlNewToDo}
+               autoCorrect = {false}
+               placeholderTextColor ={"#bbb"}
+               onEndEditing = {this._addTodo}
+             >
+             </TextInput>
+             <ScrollView contentContainerStyle = {styles.todo}>
+               {Object.values(toDos).map(todo=>{
+                  return <Todo key={todo.id} {...todo} deleteToDo={this._deleteTodo} completed={this._toggleCompleted}/>
+               })}
+             </ScrollView>
+           </View>
+         </View>
+     );  
+    }
   }
 
 
@@ -39,6 +56,71 @@ export default class App extends React.Component {
       newToDo : text
     })
   }
+
+  _loadedToDo = ()=>{
+    this.setState({
+      isLoaded : true
+    })
+  }
+
+  _addTodo = ()=>{
+    const {newToDo} = this.state;
+    if(newToDo !== ""){
+      this.setState(prevState=>{
+        const ID = uuid.v1();
+        const newToDoObject = {
+          [ID] :{
+            id : ID,
+            isCompleted : false,
+            text : newToDo,
+            createdAt : Date.now()
+          }
+        };
+        const newState = {
+          ...prevState,
+          newToDo : "",
+          toDos : {
+            ...prevState.toDos,
+            ...newToDoObject
+          }
+        }
+        return {...newState};
+      })
+     
+    }
+  }
+
+  _deleteTodo =(id)=>{
+    this.setState(prevState => {
+      const toDos = prevState.toDos;
+      delete toDos[id]
+      const newState = {
+        ...prevState,
+        ...toDos
+      }
+
+      return {...newState}
+    })
+  }
+  _toggleCompleted = (id)=>{
+    this.setState(prevState =>{ 
+        const toDos = prevState.toDos;
+        
+        if(toDos[id].isCompleted){
+          toDos[id].isCompleted = false
+        }else{
+          toDos[id].isCompleted = true
+        }
+
+        const newState = {
+          ...prevState,
+          ...toDos
+        }
+        
+        return {...newState};
+    })
+  }
+
 }
 
 const styles = StyleSheet.create({

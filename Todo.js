@@ -1,28 +1,40 @@
 import React, {Component} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet, Dimensions, TextInput} from 'react-native';
+import PropTypes from 'prop-types';
 
 const {width} = Dimensions.get("window");
 
 
-export default class Todo extends React.Component{
-    state = {
-        isCompleted : false,
-        isEditing : false,
-        todoValue : this.props.text
+export default class Todo extends Component{
+    constructor(props){
+        super(props);
+        
+        this.state={
+            isEditing : false,
+            todoValue : props.text
+        }
     }
-    
+    static propsTypes ={
+        text : PropTypes.string.isRequired,
+        isCompleted : PropTypes.bool.isRequired,
+        id : PropTypes.string.isRequired,
+        deleteToDo : PropTypes.func.isRequired,
+        completed : PropTypes.func.isRequired
+    }
+ 
+  
     render(){
-
-        const {isCompleted, isEditing, todoValue} = this.state
+        const { isEditing, todoValue} = this.state;
+        const {text, id, deleteToDo, isCompleted, completed} = this.props;
         return(
             <View style ={styles.container}>
-                <TouchableOpacity onPress={this._toggleCompleted}>
+                <TouchableOpacity onPressOut={()=>completed(id)}>
                     <View style = {[styles.circle, isCompleted ? styles.completedCircle : styles.uncompletedCircle]}></View>
                 </TouchableOpacity>
                 {isEditing ? (
                     <View style = {styles.contentView}>
                         <TextInput 
-                        style={isCompleted ? styles.completedText : styles.text} 
+                        style={[styles.input,isCompleted ? styles.completedText : styles.text]} 
                         autoCorrect ={false}
                         onChangeText={this._controllInput}
                         multiline = {true}
@@ -39,14 +51,14 @@ export default class Todo extends React.Component{
                     </View>
                 ) : (
                     <View style = {styles.contentView}>
-                        <Text style={isCompleted ? styles.completedText : styles.text}>{todoValue}</Text>
+                        <Text style={isCompleted ? styles.completedText : styles.text}>{text}</Text>
                         <View style={styles.actionView}>
                             <TouchableOpacity onPress ={this._startEditing}>
                                 <View style = {styles.actionContainer}>
                                     <Text>🖊</Text>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPressOut={()=>deleteToDo(id)}>
                                 <View style = {styles.actionContainer}>
                                     <Text>❌</Text>
                                 </View>
@@ -69,6 +81,7 @@ export default class Todo extends React.Component{
     }
 
     _startEditing = ()=>{
+       
         this.setState({
             isEditing : true
         })
@@ -141,5 +154,8 @@ const styles = StyleSheet.create({
     actionContainer :{
         marginVertical : 10,
         marginHorizontal : 10
+    },
+    input : {
+        width : width /2
     }
 })
