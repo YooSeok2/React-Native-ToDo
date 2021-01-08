@@ -20,7 +20,6 @@ export default class App extends Component {
 
   render(){
     const {newToDo, isLoaded, toDos} = this.state;
-
     if(!isLoaded){
       return <AppLoading/> 
     }else{
@@ -40,8 +39,8 @@ export default class App extends Component {
              >
              </TextInput>
              <ScrollView contentContainerStyle = {styles.todo}>
-               {Object.values(toDos).map(todo=>{
-                  return <Todo key={todo.id} {...todo} deleteToDo={this._deleteTodo} completed={this._toggleCompleted}/>
+               {Object.values(toDos).sort((prev,next)=>{return prev.createdAt-next.createdAt }).map(todo=>{
+                  return <Todo key={todo.id} {...todo} deleteToDo={this._deleteTodo} completed={this._completedTodo} uncompleted={this._unCompletedTodo} updateTodo={this._updateTodo}/>
                })}
              </ScrollView>
            </View>
@@ -98,28 +97,65 @@ export default class App extends Component {
         ...prevState,
         ...toDos
       }
-
+      
       return {...newState}
     })
   }
-  _toggleCompleted = (id)=>{
-    this.setState(prevState =>{ 
-        const toDos = prevState.toDos;
-        
-        if(toDos[id].isCompleted){
-          toDos[id].isCompleted = false
-        }else{
-          toDos[id].isCompleted = true
-        }
-
-        const newState = {
+  // _toggleCompleted = (id)=>{
+  //   this.setState(prevState =>{ 
+  //       const newState = {
+  //         ...prevState,
+  //         toDos : {
+  //           ...prevState.toDos,
+  //           [id] : {...prevState.toDos[id], isCompleted : !prevState.toDos[id].isCompleted}
+  //         }
+  //       }
+       
+  //       return {...newState};
+  //   })
+  // }
+  _unCompletedTodo = (id)=>{
+    this.setState(prevState=>{
+      const newState = {
           ...prevState,
-          ...toDos
-        }
-        
-        return {...newState};
-    })
+          toDos : {
+            ...prevState.toDos,
+            [id] : {...prevState.toDos[id], isCompleted : false}  
+          }  
+      }
+
+      return {...newState};
+    })    
   }
+
+  _completedTodo = (id)=>{
+    this.setState(prevState=>{
+      const newState = {
+        ...prevState,
+        toDos : {
+          ...prevState.toDos,
+          [id] : {...prevState.toDos[id], isCompleted : true}  
+        }
+      }
+
+      return {...newState};
+    })    
+  }
+
+  _updateTodo = (id, text) => {
+      this.setState(prevState=>{
+          const newState = {
+            ...prevState,
+            toDos : {
+              ...prevState.toDos,
+              [id] : {...prevState.toDos[id], text :text}
+            }
+          }
+        
+          return {...newState};
+      })
+  }
+
 
 }
 
