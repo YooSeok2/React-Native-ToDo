@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {Component} from 'react';
-import { StyleSheet, Text, View, TextInput, Dimensions, Platform, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Dimensions, Platform, ScrollView, AsyncStorage } from 'react-native';
 import Todo from './Todo';
 import AppLoading from "expo-app-loading";
 import uuid from "react-native-uuid";
@@ -38,8 +38,9 @@ export default class App extends Component {
                onEndEditing = {this._addTodo}
              >
              </TextInput>
-             <ScrollView contentContainerStyle = {styles.todo}>
-               {Object.values(toDos).sort((prev,next)=>{return prev.createdAt-next.createdAt }).map(todo=>{
+             <ScrollView contentContainerStyle = {styles.todo} showsVerticalScrollIndicator={false}>
+               {Object.values(toDos).sort((prev,next)=>{return next.createdAt - prev.createdAt
+                }).map(todo=>{
                   return <Todo key={todo.id} {...todo} deleteToDo={this._deleteTodo} completed={this._completedTodo} uncompleted={this._unCompletedTodo} updateTodo={this._updateTodo}/>
                })}
              </ScrollView>
@@ -56,10 +57,18 @@ export default class App extends Component {
     })
   }
 
-  _loadedToDo = ()=>{
-    this.setState({
-      isLoaded : true
-    })
+  _loadedToDo = async ()=>{
+    try{
+      const getToDos = await AsyncStorage.getItem('todos');
+      const parseToDos = JSON.parse(getToDos);
+  
+      this.setState({
+        isLoaded : true,
+        toDos : parseToDos
+      })
+    }catch(err){
+      console.error(err);
+    }
   }
 
   _addTodo = ()=>{
@@ -83,6 +92,7 @@ export default class App extends Component {
             ...newToDoObject
           }
         }
+        this._saveTodos(newState.toDos);
         return {...newState};
       })
      
@@ -97,7 +107,7 @@ export default class App extends Component {
         ...prevState,
         ...toDos
       }
-      
+      this._saveTodos(newState.toDos);
       return {...newState}
     })
   }
@@ -123,7 +133,7 @@ export default class App extends Component {
             [id] : {...prevState.toDos[id], isCompleted : false}  
           }  
       }
-
+      this._saveTodos(newState.toDos);
       return {...newState};
     })    
   }
@@ -137,7 +147,7 @@ export default class App extends Component {
           [id] : {...prevState.toDos[id], isCompleted : true}  
         }
       }
-
+      this._saveTodos(newState.toDos);
       return {...newState};
     })    
   }
@@ -151,18 +161,26 @@ export default class App extends Component {
               [id] : {...prevState.toDos[id], text :text}
             }
           }
-        
+          this._saveTodos(newState.toDos);
           return {...newState};
       })
   }
 
+ 
+
+  _saveTodos = (newToDos)=>{
+    const KEY = 'todos'
+    AsyncStorage.setItem(KEY,JSON.stringify(newToDos));
+  }
+
+ 
 
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f23657',
+    backgroundColor: '#feb915',
     alignItems: 'center'
   },
   title : {
