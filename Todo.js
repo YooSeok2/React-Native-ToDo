@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet, Dimensions, TextInput} from 'react-native';
 import PropTypes from 'prop-types';
+import Header from './Header';
 
 const {width} = Dimensions.get("window");
 

@@ -1,223 +1,87 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {Component} from 'react';
 import { StyleSheet, Text, View, TextInput, Dimensions, Platform, ScrollView, AsyncStorage } from 'react-native';
-import Todo from './Todo';
+import TodoView from './TodoView';
+import Webhome from './Webhome';
 import AppLoading from "expo-app-loading";
 import uuid from "react-native-uuid";
+import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 
 
 const {width} = Dimensions.get("window");
+
+const WebHomeRoute = ()=>{
+   return <Webhome />
+}
+
+const ToDoRoute = ()=>{
+   return <TodoView/>
+}
+
+const renderTabBar = props=>{
+  return <TabBar 
+          {...props} 
+          indicatorStyle={{backgroundColor : "transperant"}}
+          style ={{backgroundColor:"white", borderTopColor : "#dadada", borderBottomColor : "#dadada"}} 
+          activeColor={"#feb915"}
+          inactiveColor={"#dadada"} 
+          pressColor={"#dadada"} 
+          pressOpacity={0.2} 
+        />
+}
+
+const initialLayout = {width : Dimensions.get('window').width};
 export default class App extends Component {
    state = {
-     newToDo : "",
      isLoaded : false,
-     toDos : {}
+     index : 0,
+     routes : [
+       {key : 'webhome', title : 'Web'},
+       {key : 'todos', title : 'ToDo'}
+     ]
    }
+
+   
   
    componentDidMount = ()=>{
      this._loadedToDo()
    }
 
   render(){
-    const {newToDo, isLoaded, toDos} = this.state;
+    const {isLoaded, routes, index} = this.state;
+
+    const renderScene = SceneMap({
+        webhome : WebHomeRoute,
+        todos : ToDoRoute
+    });
     if(!isLoaded){
       return <AppLoading/> 
     }else{
       return (
-        <View style={styles.container}>
-           <StatusBar barStyle="light-content" />
-           <Text style={styles.title}>YooGGu ToDo</Text>
-           <View style= {styles.card}>
-             <TextInput 
-               style={styles.input} 
-               placeholder={"New To Do"}
-               value = {newToDo}
-               onChangeText = {this._controlNewToDo}
-               autoCorrect = {false}
-               placeholderTextColor ={"#bbb"}
-               onEndEditing = {this._addTodo}
-             >
-             </TextInput>
-             <ScrollView contentContainerStyle = {styles.todo} showsVerticalScrollIndicator={false}>
-               {Object.values(toDos).sort((prev,next)=>{return next.createdAt - prev.createdAt
-                }).map(todo=>{
-                  return <Todo key={todo.id} {...todo} deleteToDo={this._deleteTodo} completed={this._completedTodo} uncompleted={this._unCompletedTodo} updateTodo={this._updateTodo}/>
-               })}
-             </ScrollView>
-           </View>
-         </View>
+       <TabView
+          navigationState = {{index, routes}}
+          renderScene = {renderScene}
+          onIndexChange= {this._changeIndex}
+          initialLayout={initialLayout}
+          tabBarPosition ={'bottom'}
+          renderTabBar = {renderTabBar}
+          swipeEnabled = {false}
+       />
      );  
     }
   }
 
-
-  _controlNewToDo = text =>{
-    this.setState({
-      newToDo : text
-    })
-  }
-
   _loadedToDo = async ()=>{
-    try{
-      const getToDos = await AsyncStorage.getItem('todos');
-      const parseToDos = JSON.parse(getToDos);
-  
-      this.setState({
-        isLoaded : true,
-        toDos : parseToDos
-      })
-    }catch(err){
-      console.error(err);
-    }
-  }
-
-  _addTodo = ()=>{
-    const {newToDo} = this.state;
-    if(newToDo !== ""){
-      this.setState(prevState=>{
-        const ID = uuid.v1();
-        const newToDoObject = {
-          [ID] :{
-            id : ID,
-            isCompleted : false,
-            text : newToDo,
-            createdAt : Date.now()
-          }
-        };
-        const newState = {
-          ...prevState,
-          newToDo : "",
-          toDos : {
-            ...prevState.toDos,
-            ...newToDoObject
-          }
-        }
-        this._saveTodos(newState.toDos);
-        return {...newState};
-      })
-     
-    }
-  }
-
-  _deleteTodo =(id)=>{
-    this.setState(prevState => {
-      const toDos = prevState.toDos;
-      delete toDos[id]
-      const newState = {
-        ...prevState,
-        ...toDos
-      }
-      this._saveTodos(newState.toDos);
-      return {...newState}
+    this.setState({
+      isLoaded : true,
     })
   }
-  // _toggleCompleted = (id)=>{
-  //   this.setState(prevState =>{ 
-  //       const newState = {
-  //         ...prevState,
-  //         toDos : {
-  //           ...prevState.toDos,
-  //           [id] : {...prevState.toDos[id], isCompleted : !prevState.toDos[id].isCompleted}
-  //         }
-  //       }
-       
-  //       return {...newState};
-  //   })
-  // }
-  _unCompletedTodo = (id)=>{
-    this.setState(prevState=>{
-      const newState = {
-          ...prevState,
-          toDos : {
-            ...prevState.toDos,
-            [id] : {...prevState.toDos[id], isCompleted : false}  
-          }  
-      }
-      this._saveTodos(newState.toDos);
-      return {...newState};
-    })    
+
+  _changeIndex = (index)=>{
+    this.setState({
+      index : index
+    });
   }
-
-  _completedTodo = (id)=>{
-    this.setState(prevState=>{
-      const newState = {
-        ...prevState,
-        toDos : {
-          ...prevState.toDos,
-          [id] : {...prevState.toDos[id], isCompleted : true}  
-        }
-      }
-      this._saveTodos(newState.toDos);
-      return {...newState};
-    })    
-  }
-
-  _updateTodo = (id, text) => {
-      this.setState(prevState=>{
-          const newState = {
-            ...prevState,
-            toDos : {
-              ...prevState.toDos,
-              [id] : {...prevState.toDos[id], text :text}
-            }
-          }
-          this._saveTodos(newState.toDos);
-          return {...newState};
-      })
-  }
-
- 
-
-  _saveTodos = (newToDos)=>{
-    const KEY = 'todos'
-    AsyncStorage.setItem(KEY,JSON.stringify(newToDos));
-  }
-
- 
 
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#feb915',
-    alignItems: 'center'
-  },
-  title : {
-    color : "white",
-    fontSize : 30,
-    marginTop : 70,
-    fontWeight : "100",
-    marginBottom : 30
-  },
-  card : {
-    flex : 1,
-    backgroundColor : 'white',
-    width : width-25,
-    borderTopLeftRadius : 10,
-    borderTopRightRadius : 10,
-    ...Platform.select({
-      ios : {
-        shadowColor : "rgb(50,50,50)",
-        shadowOffset : {
-          height : -1,
-          width : 0
-        },
-        shadowOpacity : 0.5,
-        shadowRadius : 5
-      },
-      android : {
-        elevation : 5
-      }
-    })
-  },
-  input : {
-    padding : 20,
-    borderBottomColor : '#bbb',
-    borderBottomWidth : 1,
-    fontSize : 20
-  },
-  todo : {
-    alignItems : 'center'
-  }
-});
