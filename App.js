@@ -1,14 +1,26 @@
-import { StatusBar } from 'expo-status-bar';
 import React, {Component} from 'react';
-import { StyleSheet, Text, View, TextInput, Dimensions, Platform, ScrollView, AsyncStorage } from 'react-native';
-import TodoView from './TodoView';
-import Webhome from './Webhome';
+import { Dimensions, AsyncStorage} from 'react-native';
+import TodoView from './container_views/TodoViewContainer';
+import Webhome from './views/Webhome';
 import AppLoading from "expo-app-loading";
-import uuid from "react-native-uuid";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import rootReducer from './modules';
+import {persistStore, persistReducer} from 'redux-persist';
+import { PersistGate } from 'redux-persist/integration/react'
 
 
-const {width} = Dimensions.get("window");
+const persistConfig = {
+    key : 'root',
+    storage : AsyncStorage
+}
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+const store = createStore(persistedReducer);
+
+let persistor = persistStore(store);
 
 const WebHomeRoute = ()=>{
    return <Webhome />
@@ -19,7 +31,9 @@ const ToDoRoute = ()=>{
 }
 
 const renderTabBar = props=>{
-  return <TabBar 
+  return(
+    
+       <TabBar 
           {...props} 
           indicatorStyle={{backgroundColor : "transperant"}}
           style ={{backgroundColor:"white", borderTopColor : "#dadada", borderBottomColor : "#dadada"}} 
@@ -28,6 +42,9 @@ const renderTabBar = props=>{
           pressColor={"#dadada"} 
           pressOpacity={0.2} 
         />
+
+      
+        );
 }
 
 const initialLayout = {width : Dimensions.get('window').width};
@@ -58,15 +75,19 @@ export default class App extends Component {
       return <AppLoading/> 
     }else{
       return (
-       <TabView
-          navigationState = {{index, routes}}
-          renderScene = {renderScene}
-          onIndexChange= {this._changeIndex}
-          initialLayout={initialLayout}
-          tabBarPosition ={'bottom'}
-          renderTabBar = {renderTabBar}
-          swipeEnabled = {false}
-       />
+      <Provider store = {store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <TabView
+              navigationState = {{index, routes}}
+              renderScene = {renderScene}
+              onIndexChange= {this._changeIndex}
+              initialLayout={initialLayout}
+              tabBarPosition ={'bottom'}
+              renderTabBar = {renderTabBar}
+              swipeEnabled = {false}
+          />
+        </PersistGate>
+      </Provider>
      );  
     }
   }

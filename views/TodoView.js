@@ -1,23 +1,22 @@
 import React, {Component} from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, Dimensions, Platform, ScrollView, AsyncStorage } from 'react-native';
-import Todo from './Todo';
+import { StyleSheet, Text, View, TextInput, Dimensions, Platform, ScrollView, AsyncStorage, StatusBar } from 'react-native';
+import Todo from './components/Todo';
 import uuid from "react-native-uuid";
+
 
 
 const {width} = Dimensions.get("window");
 
 export default class Webhome extends Component {
     state = {
-        newToDo : "",
-        toDos : {}
+        newToDo : ""
       }
-     
-    componentDidMount = ()=>{
-    this._loadedToDo()
-    }
+
     render(){
-        const {newToDo, toDos} = this.state;
+        
+        const {toDos} = this.props || {};
+        
+        const {newToDo} = this.state;
         return(
             <View style={styles.container}>
                 <StatusBar barStyle="light-content" />
@@ -50,108 +49,54 @@ export default class Webhome extends Component {
         })
       }
     
-      _loadedToDo = async ()=>{
-        try{
-          const getToDos = await AsyncStorage.getItem('todos');
-          const parseToDos = JSON.parse(getToDos);
-      
-          this.setState({
-            toDos : parseToDos || {}
-          })
-        }catch(err){
-          console.error(err);
-        }
-      }
     
       _addTodo = ()=>{
+        const {onAddTodo} = this.props;
+        
         const {newToDo} = this.state;
         if(newToDo !== ""){
           this.setState(prevState=>{
-            const ID = uuid.v1();
-            const newToDoObject = {
-              [ID] :{
-                id : ID,
-                isCompleted : false,
-                text : newToDo,
-                createdAt : Date.now()
-              }
-            };
             const newState = {
-              ...prevState,
-              newToDo : "",
-              toDos : {
-                ...prevState.toDos,
-                ...newToDoObject
-              }
+              newToDo : ""
             }
-            this._saveTodos(newState.toDos);
             return {...newState};
-          })
-         
+          });
+          const ID = uuid.v1();
+          const newToDoObject = {
+            [ID] :{
+              id : ID,
+              isCompleted : false,
+              text : newToDo,
+              createdAt : Date.now()
+            }
+          };
+        
+          onAddTodo(newToDoObject);
         }
       }
     
       _deleteTodo =(id)=>{
-        this.setState(prevState => {
-          const toDos = prevState.toDos;
-          delete toDos[id]
-          const newState = {
-            ...prevState,
-            ...toDos
-          }
-          this._saveTodos(newState.toDos);
-          return {...newState}
-        })
+        const {onDeleteTodo} = this.props;
+        onDeleteTodo([id]);
+
       }
       
       _unCompletedTodo = (id)=>{
-        this.setState(prevState=>{
-          const newState = {
-              ...prevState,
-              toDos : {
-                ...prevState.toDos,
-                [id] : {...prevState.toDos[id], isCompleted : false}  
-              }  
-          }
-          this._saveTodos(newState.toDos);
-          return {...newState};
-        })    
+        const {onUnCompletedTodo} = this.props;
+        onUnCompletedTodo(id);
       }
     
-      _completedTodo = (id)=>{
-        this.setState(prevState=>{
-          const newState = {
-            ...prevState,
-            toDos : {
-              ...prevState.toDos,
-              [id] : {...prevState.toDos[id], isCompleted : true}  
-            }
-          }
-          this._saveTodos(newState.toDos);
-          return {...newState};
-        })    
+      _completedTodo = (id)=>{  
+        const {onCompletedTodo} = this.props;
+        onCompletedTodo(id);
       }
     
       _updateTodo = (id, text) => {
-          this.setState(prevState=>{
-              const newState = {
-                ...prevState,
-                toDos : {
-                  ...prevState.toDos,
-                  [id] : {...prevState.toDos[id], text :text}
-                }
-              }
-              this._saveTodos(newState.toDos);
-              return {...newState};
-          })
+        const {onUpdateTodo} = this.props;
+        onUpdateTodo(id,text);
+
       }
-    
-     
-    
-      _saveTodos = (newToDos)=>{
-        const KEY = 'todos'
-        AsyncStorage.setItem(KEY,JSON.stringify(newToDos));
-      }
+
 }
 
 

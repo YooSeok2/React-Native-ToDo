@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet, Dimensions, TextInput} from 'react-native';
 import PropTypes from 'prop-types';
-import Header from './Header';
 
 const {width} = Dimensions.get("window");
 
@@ -29,6 +28,7 @@ export default class Todo extends Component{
     render(){
         const { isEditing, todoValue} = this.state;
         const {text, id, deleteToDo, isCompleted} = this.props;
+        
         return(
             <View style ={styles.container}>
                 <TouchableOpacity onPressOut={this._toggleCompleted}>
