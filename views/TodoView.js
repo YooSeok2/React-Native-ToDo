@@ -7,7 +7,7 @@ import uuid from "react-native-uuid";
 
 const {width} = Dimensions.get("window");
 
-export default class Webhome extends Component {
+export default class TodoView extends Component {
     state = {
         newToDo : ""
       }
