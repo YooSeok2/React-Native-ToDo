@@ -8,7 +8,8 @@ import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import rootReducer from './modules';
 import {persistStore, persistReducer} from 'redux-persist';
-import { PersistGate } from 'redux-persist/integration/react'
+import { PersistGate } from 'redux-persist/integration/react';
+import { Entypo, MaterialCommunityIcons  } from '@expo/vector-icons'; 
 
 
 const persistConfig = {
@@ -30,20 +31,30 @@ const ToDoRoute = ()=>{
    return <TodoView/>
 }
 
+const getTabBarIcon = (props)=>{
+  const {route} = props;
+ 
+  if(route.key === 'webhome'){
+    return <Entypo name="home" size={25} color= {props.color} />
+  }else{
+    return <MaterialCommunityIcons name="text-box-check-outline" size={25} color= {props.color} />
+  }
+}
+
 const renderTabBar = props=>{
   return(
-    
        <TabBar 
           {...props} 
           indicatorStyle={{backgroundColor : "transperant"}}
           style ={{backgroundColor:"white", borderTopColor : "#dadada", borderBottomColor : "#dadada"}} 
           activeColor={"#feb915"}
-          inactiveColor={"#dadada"} 
+          inactiveColor={"#909090"} 
           pressColor={"#dadada"} 
-          pressOpacity={0.2} 
+          pressOpacity={0.2}
+          renderIcon = {
+            props => getTabBarIcon(props)
+          }
         />
-
-      
         );
 }
 
@@ -53,8 +64,8 @@ export default class App extends Component {
      isLoaded : false,
      index : 0,
      routes : [
-       {key : 'webhome', title : 'Web'},
-       {key : 'todos', title : 'ToDo'}
+       {key : 'webhome'},
+       {key : 'todos'}
      ]
    }
 
@@ -66,6 +77,7 @@ export default class App extends Component {
 
   render(){
     const {isLoaded, routes, index} = this.state;
+    
 
     const renderScene = SceneMap({
         webhome : WebHomeRoute,

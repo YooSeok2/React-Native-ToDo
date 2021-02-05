@@ -1,56 +1,24 @@
 import React, {Component} from 'react';
-import { View, StyleSheet, StatusBar, Animated, Dimensions } from 'react-native';
+import { View, StyleSheet, StatusBar } from 'react-native';
 import { WebView } from 'react-native-webview';
 import Header from '../components/Header';
 
-const {height} = Dimensions.get('window');
+
 
 export default class WebMain extends Component{
     constructor(props){
         super(props);
         this.state = {
-            web_info : {},
-            bounceValue : new Animated.Value(height)
+            web_info : {}
         }
     }
 
     webview  =  null ; 
 
-    componentDidMount = async()=>{
-        // const { bounceValue } = this.state
-        // await Animated.timing(
-        //     bounceValue,
-        //     {
-        //       toValue: 0,
-        //       duration: 200
-        //     }
-        // ).start();
-        // await this.setState({
-        //     bounceValue : 0
-        // });
-    }
-
-    componentWillUnmount = async()=>{
-        // const { bounceValue } = this.state
-        // await Animated.timing(
-        //     bounceValue,
-        //     {
-        //       toValue: height,
-        //       duration: 200
-        //     }
-        // ).start();
-        // await this.setState({
-        //     bounceValue : height
-        // })
-    }
 
     render(){
-        const {web_info, bounceValue} = this.state;
-        const animationStyles = {
-            transform : [
-               {translateY : bounceValue} 
-            ]
-        }
+        const {web_info} = this.state;
+      
 
         return(
             <View style ={styles.container}>
@@ -78,7 +46,7 @@ export default class WebMain extends Component{
     }
 
     handleWebViewNavigationStateChange= (newNavState)=>{
-        console.log(newNavState);
+        
         if(newNavState.loading === false){
             this.setState({
                 web_info : newNavState,
@@ -93,7 +61,7 @@ const styles = StyleSheet.create({
         flex : 1
     },
     header : {
-        flex  :1,
+        height : 60,
         backgroundColor : "#feb915",
         paddingLeft : 15,
         paddingBottom : 15,
@@ -104,6 +72,6 @@ const styles = StyleSheet.create({
     },
     title : {
         color : '#ffffff',
-        fontSize : 25
+        fontSize : 30
     }
 })

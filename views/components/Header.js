@@ -1,16 +1,18 @@
 import React, {Component} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import { AntDesign } from '@expo/vector-icons';
 
 export default class Header extends Component{
   
     render(){
         const {clickHeader, webInfo} = this.props;
-        console.log(webInfo);
+        
         return(
-            <View>
+            <View style = {styles.container}>
                 <TouchableOpacity onPress={()=>clickHeader()}>
-                    <Text  style={styles.text}>{webInfo.title}</Text> 
+                    <AntDesign name="arrowleft" size={24} color="white"/>
                 </TouchableOpacity>
+                <Text  style={styles.text}>{webInfo.title}</Text> 
             </View>
         )
     }
@@ -19,8 +21,14 @@ export default class Header extends Component{
 }
 
 const styles = StyleSheet.create({
+    container: { 
+        justifyContent: 'flex-start',
+        alignItems : 'center',
+        flexDirection : 'row'
+    },
     text : {
         color : '#ffffff',
-        fontSize : 20
+        fontSize : 21,
+        marginLeft : 25
     }
 })

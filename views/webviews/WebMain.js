@@ -29,13 +29,21 @@ export default class WebMain extends Component{
 
 
     handleWebViewNavigationStateChange= (newNavState)=>{
-        console.log(newNavState);
+        
         const {navigation}  = this.props;
     
         if(newNavState.loading === false){
             switch(newNavState.url){
                 case 'https://thehanpam.co/app/index_app/banner' :
                     navigation.navigate('Guide');
+                    this.webview.goBack();
+                    break;
+                case 'https://thehanpam.co/app/analysis_detail':
+                    navigation.navigate('Report');
+                    this.webview.goBack();
+                    break;
+                case 'https://thehanpam.co/app/foreigner_detail' : 
+                    navigation.navigate('Foreign');
                     this.webview.goBack();
                     break;
                 default :
@@ -55,17 +63,16 @@ const styles = StyleSheet.create({
         flex : 1
     },
     header : {
-        flex : 1,
+        height : 60,
         backgroundColor : "#feb915",
         paddingLeft : 15,
-        paddingBottom : 15,
-        justifyContent : 'flex-end'
+        justifyContent : 'center',
     },
     content : {
         flex : 10
     },
     title : {
         color : '#ffffff',
-        fontSize : 25
+        fontSize : 30
     }
 })
