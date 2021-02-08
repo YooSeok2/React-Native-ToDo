@@ -42,7 +42,7 @@ export default class WebMain extends Component{
     clickHeaderListener = ()=>{
         const {navigation}  = this.props;
         navigation.popToTop();
-        this.webview.stopLoading();
+        
     }
 
     handleWebViewNavigationStateChange= (newNavState)=>{

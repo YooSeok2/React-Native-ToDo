@@ -39,7 +39,7 @@ export default class WebReport extends Component{
     clickHeaderListener = ()=>{
         const {navigation}  = this.props;
         navigation.popToTop();
-        this.webview.stopLoading();
+        
     }
 
     handleWebViewNavigationStateChange= (newNavState)=>{

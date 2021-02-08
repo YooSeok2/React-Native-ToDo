@@ -5,6 +5,7 @@ import WebMain from './webviews/WebMain';
 import WebGuide from './webviews/WebGuide';
 import WebReport from './webviews/WebReport';
 import WebForeign from './webviews/WebForeign';
+import Manager from './components/Manager';
 
 
 export default class Webhome extends Component {
@@ -28,6 +29,7 @@ export default class Webhome extends Component {
                    <Stack.Screen name = "Guide" component = {WebGuide} />
                    <Stack.Screen name = "Report" component = {WebReport} />
                    <Stack.Screen name = "Foreign" component = {WebForeign} />
+                   <Stack.Screen name = "Manager" component = {Manager} />
                </Stack.Navigator>
            </NavigationContainer>
             

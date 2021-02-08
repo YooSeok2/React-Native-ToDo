@@ -21,6 +21,9 @@ export default class WebMain extends Component{
                         onNavigationStateChange = { (event)=>{ 
                             this.handleWebViewNavigationStateChange(event)
                         }}
+                        onHttpError={() => {
+                            this.webview.stopLoading();
+                        }}
                     />    
                 </View>
             </View>
@@ -28,30 +31,42 @@ export default class WebMain extends Component{
     }
 
 
+  
     handleWebViewNavigationStateChange= (newNavState)=>{
-        
         const {navigation}  = this.props;
-    
+        
+
+        var parseUrl  = newNavState.url.split('/');
+        var urlArrayLength = parseUrl.length;
+
+        if(newNavState.url !== 'https://thehanpam.co/app/index_app'){
+            this.webview.stopLoading();
+        }
+        
         if(newNavState.loading === false){
-            switch(newNavState.url){
-                case 'https://thehanpam.co/app/index_app/banner' :
-                    navigation.navigate('Guide');
-                    this.webview.goBack();
-                    break;
-                case 'https://thehanpam.co/app/analysis_detail':
-                    navigation.navigate('Report');
-                    this.webview.goBack();
-                    break;
-                case 'https://thehanpam.co/app/foreigner_detail' : 
-                    navigation.navigate('Foreign');
+            switch(parseUrl[3]){
+                case 'app' :
+                   if(parseUrl[urlArrayLength-1] === 'banner'){
+                        navigation.navigate('Guide');
+                        this.webview.goBack();
+                        break;
+                   }else if(parseUrl[urlArrayLength-1] === 'analysis_detail'){
+                        navigation.navigate('Guide');
+                        this.webview.goBack();
+                        break;
+                   }else if(parseUrl[urlArrayLength-1] === 'foreigner_detail'){
+                        navigation.navigate('Foreign');
+                        this.webview.goBack();
+                        break;
+                   }else{
+                        break;
+                   }
+                case 'product' :
+                    navigation.navigate('Manager',{expertId : parseUrl[urlArrayLength-1]});
                     this.webview.goBack();
                     break;
                 default :
                     break;
-            }
-        }else{
-            if(newNavState.url !== 'https://thehanpam.co/app/index_app'){
-                this.webview.stopLoading();
             }
         }
     
