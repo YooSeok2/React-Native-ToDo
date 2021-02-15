@@ -51,7 +51,7 @@ export default class WebMain extends Component{
                         this.webview.goBack();
                         break;
                    }else if(parseUrl[urlArrayLength-1] === 'analysis_detail'){
-                        navigation.navigate('Guide');
+                        navigation.navigate('Report');
                         this.webview.goBack();
                         break;
                    }else if(parseUrl[urlArrayLength-1] === 'foreigner_detail'){

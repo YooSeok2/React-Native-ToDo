@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Dimensions, AsyncStorage} from 'react-native';
+import { Dimensions, AsyncStorage, StyleSheet} from 'react-native';
 import TodoView from './container_views/TodoViewContainer';
 import Webhome from './views/Webhome';
 import AppLoading from "expo-app-loading";
@@ -54,11 +54,12 @@ const renderTabBar = props=>{
           renderIcon = {
             props => getTabBarIcon(props)
           }
+          
         />
         );
 }
-
-const initialLayout = {width : Dimensions.get('window').width};
+const {width} = Dimensions.get('window');
+const initialLayout = {width :width};
 export default class App extends Component {
    state = {
      isLoaded : false,
@@ -97,6 +98,7 @@ export default class App extends Component {
               tabBarPosition ={'bottom'}
               renderTabBar = {renderTabBar}
               swipeEnabled = {false}
+              
           />
         </PersistGate>
       </Provider>
@@ -105,9 +107,12 @@ export default class App extends Component {
   }
 
   _loadedToDo = async ()=>{
-    this.setState({
-      isLoaded : true,
-    })
+    setTimeout(()=>{
+        this.setState({
+          isLoaded : true,
+        })
+    }, 2000);
+    
   }
 
   _changeIndex = (index)=>{
@@ -117,4 +122,6 @@ export default class App extends Component {
   }
 
 }
+
+
 

@@ -4,12 +4,14 @@ import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { AntDesign } from '@expo/vector-icons';
 import ProductIntro from '../managerviews/ProductIntro';
 import EndTrade from '../managerviews/EndTrade'
+import Report from '../managerviews/Report';
+import HoldingStock from '../managerviews/HoldingStock';
 
 const renderTabBar = props=>{
     return(
          <TabBar 
             {...props} 
-            indicatorStyle={{backgroundColor : "transperant"}}
+            indicatorStyle={{backgroundColor : "#feb915"}}
             style ={{backgroundColor:"white", borderTopColor : "#dadada", borderBottomColor : "#dadada"}} 
             activeColor={"#feb915"}
             inactiveColor={"#909090"} 
@@ -18,16 +20,8 @@ const renderTabBar = props=>{
           />
           );
 }
-
-const initialLayout = {width : Dimensions.get('window').width};
-
-const ProductIntroRoute = ()=>{
-    return <ProductIntro />
- }
- 
-const EndTradeRoute = ()=>{
-    return <EndTrade/>
-}
+const {width, height} = Dimensions.get('window')
+const initialLayout = {width : width};
 
 export default class Manager extends Component{
     constructor(props){
@@ -38,7 +32,9 @@ export default class Manager extends Component{
             index : 0,
             routes : [
                 {key : 'intro', title : '상품소개'},
-                {key : 'endtrade',title : '마감거래'}
+                {key : 'endtrade',title : '마감거래'},
+                {key : 'report', title : '리포트'},
+                {key : 'holdingstock', title : '보유종목'}
             ]
         }
     }
@@ -47,21 +43,44 @@ export default class Manager extends Component{
         fetch('https://thehanpam.co/api/products/'+expertId)
         .then((res)=> res.json())
         .then((res)=> this.setState({manageInfo : res.data}))
-        .then((res)=> this.setState({checkGetData : true}));
+        .then((res)=> this.setState({checkGetData : true}))
+        .catch((err)=>console.error(err));
     }
 
     getFloatFixed = (value, fixed) => {
         return parseFloat(Math.round(value * 100) / 100).toFixed(fixed);
     };
 
+    ProductIntroRoute = ()=>{
+        const {expertId} = this.props.route.params;
+        return <ProductIntro expertId={expertId} />
+    }
+
+    EndTradeRoute = ()=>{
+        const {expertId} = this.props.route.params;
+        return <EndTrade expertId={expertId} />
+    }
+    
+    ReportRoute = ()=>{
+        const {expertId} = this.props.route.params;
+        return <Report expertId={expertId} />
+    }
+    
+    HoldingStockRoute = ()=>{
+        const {expertId} = this.props.route.params;
+        return <HoldingStock expertId={expertId} />
+    }
     
     
     render(){
         const {manageInfo, checkGetData, routes, index} = this.state;
+        
 
         const renderScene = SceneMap({
-            intro : ProductIntroRoute,
-            endtrade : EndTradeRoute
+            intro : this.ProductIntroRoute,
+            endtrade : this.EndTradeRoute,
+            report : this.ReportRoute,
+            holdingstock : this.HoldingStockRoute
         });
         
         return( 
@@ -87,12 +106,13 @@ export default class Manager extends Component{
                         </View>
                         <View style={styles.contDetail}>
                             <Text style={styles.detailTxt}>누적</Text>
-                            <Text style={[styles.ratio,manageInfo.current_cumulative_profit_ratio > 0 ? styles.plusRatio : styles.minusRatio]}>{this.getFloatFixed(manageInfo.current_month_profit_ratio, 2)}%</Text>
+                            <Text style={[styles.ratio,manageInfo.current_cumulative_profit_ratio > 0 ? styles.plusRatio : styles.minusRatio]}>{this.getFloatFixed(manageInfo.current_cumulative_profit_ratio, 2)}%</Text>
                         </View>
                     </View>
                 </View>
                 <View style={styles.tabView}>
                     <TabView
+                        lazy
                         navigationState = {{index, routes}}
                         renderScene = {renderScene}
                         onIndexChange= {this._changeIndex}
