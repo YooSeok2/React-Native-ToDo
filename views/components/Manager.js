@@ -42,9 +42,11 @@ export default class Manager extends Component{
         const {expertId} = this.props.route.params;
         fetch('https://thehanpam.co/api/products/'+expertId)
         .then((res)=> res.json())
-        .then((res)=> this.setState({manageInfo : res.data}))
+        .then((res)=> this.setState({manageInfo : res.data, companyName : res.data.company}))
         .then((res)=> this.setState({checkGetData : true}))
         .catch((err)=>console.error(err));
+
+       
     }
 
     getFloatFixed = (value, fixed) => {
@@ -62,8 +64,9 @@ export default class Manager extends Component{
     }
     
     ReportRoute = ()=>{
+        const {companyName} = this.state;
         const {expertId} = this.props.route.params;
-        return <Report expertId={expertId} />
+        return <Report expertId={expertId} companyName={companyName} />
     }
     
     HoldingStockRoute = ()=>{

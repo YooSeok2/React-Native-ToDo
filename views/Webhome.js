@@ -24,7 +24,7 @@ export default class Webhome extends Component {
                         cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS
                    }}
                    mode="modal"
-            >
+                >
                    <Stack.Screen name = "Main" component = {WebMain} />
                    <Stack.Screen name = "Guide" component = {WebGuide} />
                    <Stack.Screen name = "Report" component = {WebReport} />

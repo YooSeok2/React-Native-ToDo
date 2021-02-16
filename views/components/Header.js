@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, Pressable} from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
 export default class Header extends Component{
@@ -9,9 +9,9 @@ export default class Header extends Component{
         
         return(
             <View style = {styles.container}>
-                <TouchableOpacity onPress={()=>clickHeader()}>
+                <Pressable onPress={()=>clickHeader()}>
                     <AntDesign name="arrowleft" size={24} color="white"/>
-                </TouchableOpacity>
+                </Pressable>
                 <Text  style={styles.text}>{webInfo.title}</Text> 
             </View>
         )

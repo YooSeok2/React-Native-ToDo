@@ -1,7 +1,8 @@
 import React,{Component} from 'react';
-import {View, Text, StyleSheet,ScrollView, Dimensions, ActivityIndicator} from 'react-native';
+import {View, Text, StyleSheet, Dimensions, ActivityIndicator, SafeAreaView, FlatList } from 'react-native';
 import moment from 'moment';
-import Spinner from 'react-native-loading-spinner-overlay';
+import PropTypes from 'prop-types';
+
 
 
 const {width}  = Dimensions.get('window');
@@ -23,7 +24,6 @@ export default class EndTrade extends Component{
         })
         .then((res)=>{
             const tradeData = res.data.items;
-             
 
             const parseTradeData = tradeData.map((data)=>{
                 const registerDate = moment(data.register_date).format('YYYY.MM.DD');
@@ -52,46 +52,62 @@ export default class EndTrade extends Component{
 
     }
 
+    renderItem = ({item}) => {
+        return(
+            <View style={styles.stockContainer}>
+                <Text style={styles.stockTitle}>{item.stockName}</Text>
+                <View style={styles.stockDate}>
+                    <Text style= {styles.stockDateTxt}>보유기간 : </Text>
+                    <Text style= {styles.stockDateTxt}>{item.register_date} ~ {item.endDate}</Text>
+                </View>
+                <View style={styles.profit}>
+                    <View style={styles.profitLeft}>
+                        <Text style={styles.profitTxt}>수익률 : </Text>
+                        <Text style={item.ratio > 0 ? styles.profitPlus : styles.profitMinus}>{item.ratio}%</Text>
+                    </View>
+                    <View style={styles.profitRight}>
+                        <Text style={styles.profitTxt}>수익금 : </Text>
+                        <Text style={item.ratio > 0 ? styles.profitPlus : styles.profitMinus}>{item.realized_profit_and_loss}</Text>
+                    </View>
+                </View>
+            </View>
+            )
+    }
+
     render(){
         const {checkTradeData, tradeData} = this.state;
-       
+        
         return(
             checkTradeData
             ?
-            <ScrollView style={styles.container} showsVerticalScrollIndicator={false} >
-                <Text style={styles.title}>마감거래</Text>
-                {tradeData.map((data, index)=>{
-                  return(
-                        <View style={styles.stockContainer} key={index}>
-                            <Text style={styles.stockTitle}>{data.stockName}</Text>
-                            <View style={styles.stockDate}>
-                                <Text style= {styles.stockDateTxt}>보유기간 : </Text>
-                                <Text style= {styles.stockDateTxt}>{data.register_date} ~ {data.endDate}</Text>
-                            </View>
-                            <View style={styles.profit}>
-                                <View style={styles.profitLeft}>
-                                    <Text style={styles.profitTxt}>수익률 : </Text>
-                                    <Text style={data.ratio > 0 ? styles.profitPlus : styles.profitMinus}>{data.ratio}%</Text>
-                                </View>
-                                <View style={styles.profitRight}>
-                                    <Text style={styles.profitTxt}>수익금 : </Text>
-                                    <Text style={data.ratio > 0 ? styles.profitPlus : styles.profitMinus}>{data.realized_profit_and_loss}</Text>
-                                </View>
-                            </View>
+            <SafeAreaView style={styles.container}  >
+                <FlatList
+                    showsVerticalScrollIndicator={false}
+                    ListHeaderComponent = {
+                        <>
+                            <Text style={styles.title}>마감거래</Text>
+                        </>
+                    }
+                    data = {tradeData}
+                    renderItem = {this.renderItem}
+                    keyExtractor={(item)=>item.id.toString()}
+                    ListFooterComponent={
+                        <View style={styles.footer}>
+                            <Text style={styles.footerTxt}>증권사 수수료와 거래세가 공제되지 않았으며{'\n'}실제 손익과 일부 차이가 있을 수 있습니다.</Text>
                         </View>
-                        )
-                })}
-                <View style={styles.footer}>
-                    <Text style={styles.footerTxt}>증권사 수수료와 거래세가 공제되지 않았으며{'\n'}실제 손익과 일부 차이가 있을 수 있습니다.</Text>
-                </View>
-                
-            </ScrollView>
+                    }
+            />
+            </SafeAreaView>
             :
             <View style={styles.loading}>
                 <ActivityIndicator size="large" color={'#dadada'}/>
             </View>
         )
     }
+}
+
+EndTrade.propTypes = {
+    expertId : PropTypes.string
 }
 
 const styles = StyleSheet.create({

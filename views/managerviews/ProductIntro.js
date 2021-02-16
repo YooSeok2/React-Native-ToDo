@@ -1,6 +1,7 @@
 import React,{Component} from 'react';
 import {View, Text, StyleSheet, Dimensions,TouchableOpacity, ScrollView} from 'react-native';
 import {Chart,VerticalAxis,HorizontalAxis, Line} from "react-native-responsive-linechart";
+import PropTypes from 'prop-types';
 
 
 const {width} = Dimensions.get('window');
@@ -105,6 +106,7 @@ export default class ProductIntro extends Component{
                     style={{ height: 150, width: width-40, marginBottom : 20 }}
                     data={selectChartData}
                     padding={{ left: 50, bottom: 20, right: 0, top: 20 }}
+                    disableGestures = {true}
                 >
                     <VerticalAxis tickCount={5} theme={chartConfig.vertical} />
                     <HorizontalAxis tickCount={0} theme = {chartConfig.horizontal} />
@@ -158,6 +160,10 @@ export default class ProductIntro extends Component{
                 break;
         }
     }
+}
+
+ProductIntro.propTypes = {
+    expertId : PropTypes.string
 }
 
 const styles = StyleSheet.create({
