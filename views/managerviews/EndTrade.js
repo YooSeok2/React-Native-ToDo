@@ -71,7 +71,7 @@ export default class EndTrade extends Component{
                     </View>
                 </View>
             </View>
-            )
+        )
     }
 
     render(){
